@@ -1,13 +1,18 @@
 import logo from "../../assets/logo.svg";
 
+import { useEffect } from "react";
+
 import { Container } from "../../components/container";
 import { Input } from "../../components/input";
 import { useForm} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { auth } from "../../services/firebaseconnection";
+import { createUserWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 
-import { Link } from "react-router-dom";
+
+import { Link, useNavigate} from "react-router-dom";
 
 const schema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -22,14 +27,41 @@ type FormData = z.infer<typeof schema>
 
 export function Register() {
 
+   const navigate = useNavigate();
+
    const { register, handleSubmit, formState: { errors }} = useForm<FormData>({
       resolver: zodResolver(schema),
       mode: "onChange",
    })
 
-   function onsubmit(data: FormData){
-      console.log(data);
+   async function onsubmit(data: FormData){
+      createUserWithEmailAndPassword(auth, data.email, data.password)
+      .then(async (user) => {
+         await updateProfile(user.user, {
+            displayName: data.name
+         })
+
+         console.log("Cadastrado com sucesso")
+         navigate("/dashboard", {
+            replace: true,
+         } )
+      })
+      .catch((error) => {
+         console.log("erro ao cadastrar usuário" + error)
+
+      })
+      
    }
+
+
+   useEffect(() => {
+      async function handleLognOut(){
+         await signOut(auth)
+      }
+      handleLognOut();
+
+   }, []) 
+
 
     return (
         <Container>
@@ -79,7 +111,7 @@ export function Register() {
 
 
             <button type="submit" className="bg-zinc-900 w-full rounded-md text-white h-10 font-medium ">
-               Acessar
+               Cadastrar
             </button>
          
          </form>
