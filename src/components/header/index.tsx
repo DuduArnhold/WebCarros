@@ -4,10 +4,13 @@ import {Link} from "react-router-dom"
 
 import { FiUser, FiLogIn } from "react-icons/fi"
 
+import { useContext } from "react";
+
+import { AuthContext } from "../../context/authcontext";
+
 export function Header(){
 
-    const signed = false;
-    const loadingAuth = false;
+    const { signed, loadingAuth } = useContext(AuthContext);
 
 
 

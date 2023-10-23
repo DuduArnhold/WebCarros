@@ -16,6 +16,8 @@ interface AuthProviderProps {
 type AuthContextData = {
     signed: boolean;
     loadingAuth: boolean;
+    handleInfoUser: ({name, email, uid}: userProps) => void;
+    user: userProps | null;
 
 }
 
@@ -58,8 +60,18 @@ function AuthProvider({children}: AuthProviderProps){
     }, [])
 
 
+    function handleInfoUser({ name, uid, email }: userProps){
+        setUser({
+            name,
+            uid,
+            email,
+        })
+
+    }
+
+
     return(
-        <AuthContext.Provider value={{ signed: !!user, loadingAuth }}>
+        <AuthContext.Provider value={{ signed: !!user, loadingAuth, handleInfoUser, user }}>
             {children}
         </AuthContext.Provider>
     )
