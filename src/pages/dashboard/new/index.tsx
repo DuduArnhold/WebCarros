@@ -23,14 +23,14 @@ const schema = z.object({
     km: z.string().min(1, "O campo Km do veiculo é obrigatório"),
     price: z.string().min(1, "O Preço do veiculo é obrigatório"),
     city: z.string().min(1, "O campo cidade é obrigatório"),
-    whatsapp: z.string().min(1).refine((value) => /^(\d{11,12})$/.test(value),{
+    whatsapp: z.string().min(1, "O número de Telefone é obrigatório").refine((value) => /^(\d{11,12})$/.test(value),{
         message: "Número de telefone inválido"
     }),
     description: z.string().min(1, "O campo de descrição do veiculo é obrigatório"), 
     
 })
 
-type FormData = z.infer< typeof schema >
+type FormData = z.infer<typeof schema>;
 
 export function New() {
 
@@ -69,7 +69,7 @@ export function New() {
 
 
             <div className="w-full bg-white p-3 rounded-lg flex flex-col sm:flex-row items-center gap-2 mt-2">
-                <form className="w-full " onChange={handleSubmit(onSubmit)}>
+                <form className="w-full " onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-3">
                         <p className="mb-2 font-medium "> Nome do Carro:  </p>
                         <Input
