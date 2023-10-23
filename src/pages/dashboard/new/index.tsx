@@ -12,6 +12,21 @@ import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { ChangeEvent, useState, useContext } from "react";
+
+import { AuthContext } from "../../../context/authcontext"
+
+import { v4 as uuidv4 } from "uuid";
+
+import { storage } from "../../../services/firebaseconnection";
+
+import { 
+    ref,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject,
+ } from "firebase/storage";
+
 
 
 
@@ -34,6 +49,8 @@ type FormData = z.infer<typeof schema>;
 
 export function New() {
 
+    const { user } = useContext(AuthContext)
+
     
     const { register, handleSubmit, formState: {errors}, reset } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -42,6 +59,39 @@ export function New() {
 
     function onSubmit(data: FormData){
         console.log(data)
+    }
+
+    async function handleFile(e: ChangeEvent<HTMLInputElement>){
+        if(e.target.files && e.target.files[0]){
+            const image = e.target.files[0];
+
+            if(image.type === "image/jpeg" || image.type === "image/png"){
+                // envia a imagem para o banco de dados
+               await handleUpload(image)
+            }else{
+                alert("A imagem deve ser Jpeg ou PNG")
+            }
+        }
+    }
+
+
+    async function handleUpload(image: File){
+        if (!user?.uid){
+            return;
+        }
+
+        const currentUid = user?.uid;
+        const uidImage = uuidv4();
+
+        const uploadRef = ref(storage, `images/${currentUid}/${uidImage}`);
+
+        uploadBytes(uploadRef, image)
+        .then((snapshot) => {
+            getDownloadURL(snapshot.ref).then((downloadUrl) => {
+                console.log(downloadUrl)
+            })
+        })
+
     }
 
 
@@ -59,7 +109,12 @@ export function New() {
                     </div>
 
                     <div className="cursor-pointer">
-                        <input type="file" accept="image/*" className=" opacity-0 cursor-pointer">
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            className=" opacity-0 cursor-pointer"
+                            onChange={handleFile}    
+                        >
                         
                         </input>
                     </div>
