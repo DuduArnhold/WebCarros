@@ -18,7 +18,7 @@ import { AuthContext } from "../../../context/authcontext"
 
 import { v4 as uuidv4 } from "uuid";
 
-import { storage } from "../../../services/firebaseconnection";
+import { storage, db } from "../../../services/firebaseconnection";
 
 import { 
     ref,
@@ -26,6 +26,12 @@ import {
     getDownloadURL,
     deleteObject,
  } from "firebase/storage";
+
+ import {
+    addDoc,
+    collection,
+
+ } from "firebase/firestore"
 
 
 
@@ -67,7 +73,44 @@ export function New() {
     const [ carImages, setCarImages ] = useState<ImageItemProps[]>([]);
 
     function onSubmit(data: FormData){
-        console.log(data)
+        if(carImages.length === 0){
+            alert("Envie alguma imagem do veiculo")
+            return;
+
+        }
+        const carListImages = carImages.map( car => {
+            return{
+                uid: car.uid,
+                name: car.name,
+                url: car.url,
+            }
+
+        } )
+
+        addDoc(collection(db, "cars"), {
+            name: data.name,
+            model: data.model,
+            year: data.year,
+            km: data.km,
+            city: data.city,
+            whatsapp: data.whatsapp,
+            price: data.price,
+            description: data.description,
+            created: new Date(),
+            owner: user?.name,
+            uid: user?.uid,
+            images: carListImages,
+        })
+        .then(() => {
+            reset();
+            setCarImages([]);
+            console.log("Cadastrado com sucesso no Banco de dados")
+
+        })
+        .catch((error) => {
+            console.log("Erro ao cadastrar no banco de dados " + error)
+        })
+
     }
 
     async function handleFile(e: ChangeEvent<HTMLInputElement>){
