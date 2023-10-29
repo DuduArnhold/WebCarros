@@ -9,6 +9,10 @@ import { useParams } from "react-router-dom";
 import { getDoc, doc } from "firebase/firestore";
 
 import { db } from "../../services/firebaseconnection";
+
+import { Swiper, SwiperSlide } from "swiper/react"
+
+
 interface CarProps{
     id: string;
     name: string;
@@ -38,6 +42,7 @@ export function CarDetail() {
 
     const [car, setCar] = useState<CarProps>();
     const { id } = useParams();
+    const [sliderPerview, setSliderPerview] = useState<number>(2);
 
 
     useEffect(() => {
@@ -72,9 +77,43 @@ export function CarDetail() {
 
     }, [id])
 
+
+    useEffect(() => {
+        function handleResize(){
+            if(window.innerWidth < 720){
+                setSliderPerview(1);
+            }else{
+                setSliderPerview(2);
+            }
+        }
+
+        handleResize();
+
+        window.addEventListener("resize", handleResize)
+
+        return() => {
+            window.removeEventListener("resize", handleResize)
+        }
+
+    }, [])
+
     return (
         <Container>
-            <h1>SLIDER</h1>
+            <Swiper 
+            slidesPerView={sliderPerview}
+            pagination={{ clickable: true }}
+            navigation
+            > 
+            {car?.images.map( image => (
+                <SwiperSlide key={image.name}>
+                    <img
+                        src={ image.url }
+                        className="w-full h-96 object-cover"
+                    />
+                </SwiperSlide>
+            ) )}
+
+            </Swiper>
 
             {
                 car && (
