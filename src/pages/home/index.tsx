@@ -9,6 +9,7 @@ import {
     query,
     getDocs,
     orderBy,
+    where
 } from "firebase/firestore";
 
 import {
@@ -39,54 +40,100 @@ export function Home() {
 
         const [loadImages, setLoadImages] = useState<string[]>([]);
 
+        const [input, setInput] = useState("");
+
         useEffect (() => {
-            async function loadCars(){
-                const carsRef = collection(db, "cars")
-                const queryRef = query(carsRef, orderBy("created", "desc"))
-                getDocs(queryRef)
-                .then((snapshot) => {
-                    const listCars = [] as CarProps[];
-                        snapshot.forEach(doc => {
-                            listCars.push({
-                                id: doc.id,
-                                name: doc.data().name,
-                                year: doc.data().year,
-                                uid: doc.data().uid,
-                                price: doc.data().price,
-                                city: doc.data().city,
-                                km: doc.data().km,
-                                images: doc.data().images,
-                            })
-                        })
 
-                        setCars(listCars);
-
-
-
-
-                })
-                .catch((error) => {
-                    console.log("Erro ao carregar carro do banco de dados ")
-                    console.log(error)
-                })
-            }
 
             loadCars();
         }, [])
+
+
+        async function loadCars(){
+            const carsRef = collection(db, "cars")
+            const queryRef = query(carsRef, orderBy("created", "desc"))
+            getDocs(queryRef)
+            .then((snapshot) => {
+                const listCars = [] as CarProps[];
+                    snapshot.forEach(doc => {
+                        listCars.push({
+                            id: doc.id,
+                            name: doc.data().name,
+                            year: doc.data().year,
+                            uid: doc.data().uid,
+                            price: doc.data().price,
+                            city: doc.data().city,
+                            km: doc.data().km,
+                            images: doc.data().images,
+                        })
+                    })
+
+                    setCars(listCars);
+
+
+
+
+            })
+            .catch((error) => {
+                console.log("Erro ao carregar carro do banco de dados ")
+                console.log(error)
+            })
+        }
 
 
         function handleImageLoad(id: string){
             setLoadImages((prevImageLoaded) => [...prevImageLoaded, id])
         }
 
+        async function handleSearchCar(){
+            if( input === ""){
+                loadCars();
+                return;
+            }
+            setCars([]);
+            setLoadImages([]);
+
+            const q = query(collection(db, "cars"),
+                     where("name", ">=", input.toUpperCase()),
+                     where("name", "<=", input.toUpperCase() + "\uf8ff")
+                     )
+
+
+            const querySnapshot = await getDocs(q);
+            const listCars = [] as CarProps[];
+
+            querySnapshot.forEach((doc) => {
+                listCars.push({
+                    id: doc.id,
+                    name: doc.data().name,
+                    year: doc.data().year,
+                    uid: doc.data().uid,
+                    price: doc.data().price,
+                    city: doc.data().city,
+                    km: doc.data().km,
+                    images: doc.data().images,
+                })
+            })
+
+            setCars(listCars);
+
+        }
+
     return (
       <Container>
         <section className="bg-white p-4 rounded-lg w-full max-w-3xl mx-auto flex justify-center items-center gap-2">
             <input
-            className="w-full border-2 rounded-lg h-9 px-3 outline-none"
+                className="w-full border-2 rounded-lg h-9 px-3 outline-none"
                 placeholder="Digite o nome do carro..."
+                value={input}
+                onChange={(e) => {
+                    setInput(e.target.value)
+                }}
             />
-            <button className="bg-red-500 h-9 px-8 rounded-lg text-white font-medium text-lg">
+            <button 
+                className="bg-red-500 h-9 px-8 rounded-lg text-white font-medium text-lg"
+                onClick={handleSearchCar}
+            >
                 Buscar
             </button>
         </section>
