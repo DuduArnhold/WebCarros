@@ -9,6 +9,8 @@ import  AuthProvider  from "./context/authcontext";
 
 import {register} from "swiper/element-bundle";
 
+import { Toaster } from "react-hot-toast";
+
 register();
 
 import "swiper/css"
@@ -18,6 +20,10 @@ import "swiper/css/scrollbar"
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+    <Toaster
+      position="bottom-right"
+      reverseOrder={false}
+    />
     <AuthProvider>
       <RouterProvider router={router}/>
     </AuthProvider>

@@ -20,6 +20,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { storage, db } from "../../../services/firebaseconnection";
 
+import toast from "react-hot-toast";
+
 import { 
     ref,
     uploadBytes,
@@ -74,7 +76,7 @@ export function New() {
 
     function onSubmit(data: FormData){
         if(carImages.length === 0){
-            alert("Envie alguma imagem do veiculo")
+            toast.error("Envie ao menos 1 imagem do carro!")
             return;
 
         }
@@ -104,11 +106,12 @@ export function New() {
         .then(() => {
             reset();
             setCarImages([]);
-            console.log("Cadastrado com sucesso no Banco de dados")
+            toast.success("Carro cadastrado com sucesso!")
 
         })
         .catch((error) => {
             console.log("Erro ao cadastrar no banco de dados " + error)
+            toast.error("Erro ao Cadastrar Carro!")
         })
 
     }
@@ -121,7 +124,7 @@ export function New() {
                 // envia a imagem para o banco de dados
                await handleUpload(image)
             }else{
-                alert("A imagem deve ser Jpeg ou PNG")
+                toast.error("A imagem deve ser JPEG ou PNG !")
             }
         }
     }

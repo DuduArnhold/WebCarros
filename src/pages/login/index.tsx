@@ -7,6 +7,8 @@ import { useForm} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import toast from "react-hot-toast";
+
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth }  from "../../services/firebaseconnection";
 
@@ -47,12 +49,14 @@ export function Login() {
       .then((user) => {
          console.log("Logado com sucesso")
          console.log(user)
+         toast.success("Login Efetuado com Sucesso")
          navigate("/dashboard", {replace: true})
          
 
       })
       .catch((error) => {
          console.log("Erro do efetuar Login" + error)
+         toast.error("Erro ao efetuar Login")
       })
    }
 

@@ -8,6 +8,8 @@ import { useForm} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import toast from "react-hot-toast";
+
 import { auth } from "../../services/firebaseconnection";
 import { createUserWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 
@@ -52,12 +54,14 @@ export function Register() {
          })
 
          console.log("Cadastrado com sucesso")
+         toast.success("BEM-VINDO ao WebCarros")
          navigate("/dashboard", {
             replace: true,
          } )
       })
       .catch((error) => {
          console.log("erro ao cadastrar usuário" + error)
+         toast.error("Erro ao Registrar usuário")
 
       })
       
